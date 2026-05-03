@@ -350,7 +350,7 @@ struct WindowRect {
 fn get_window_rect(hwnd: HWND) -> Option<WindowRect> {
     unsafe {
         let mut r = RECT::default();
-        if GetWindowRect(hwnd, &mut r).as_bool() {
+        if GetWindowRect(hwnd, &mut r).is_ok() {
             let w = (r.right - r.left) as f64;
             let h = (r.bottom - r.top) as f64;
             if w > 0.0 && h > 0.0 {
