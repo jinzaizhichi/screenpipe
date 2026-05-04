@@ -446,13 +446,9 @@ async fn main() {
     let telemetry_disabled = store_bool("analyticsEnabled")
         .map(|enabled| !enabled)
         .unwrap_or(false);
-    let offline_mode = store_bool("offlineMode").unwrap_or(false);
-    // PostHog is disabled by either telemetry toggle or offline mode
-    // Sentry stays enabled in offline mode (crash reports still sent)
-    let _posthog_disabled = telemetry_disabled || offline_mode;
+    let _posthog_disabled = telemetry_disabled;
 
     let app_version = env!("CARGO_PKG_VERSION");
-    // Sentry disabled only when telemetry is explicitly off, NOT for offline mode
     let sentry_guard = if !telemetry_disabled {
         Some(sentry::init((
             "https://da4edafe2c8e5e8682505945695ecad7@o4505591122886656.ingest.us.sentry.io/4510761355116544",
@@ -1771,9 +1767,7 @@ async fn main() {
                 });
             }
 
-            // Check analytics settings from store
-            // Offline mode disables PostHog analytics but keeps Sentry
-            let is_analytics_enabled = store.recording.analytics_enabled && !offline_mode;
+            let is_analytics_enabled = store.recording.analytics_enabled;
 
             let is_autostart_enabled = store
                 .auto_start_enabled;

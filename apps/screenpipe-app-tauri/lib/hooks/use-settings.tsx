@@ -219,8 +219,6 @@ export type Settings = SettingsStore & {
 	powerMode?: "auto" | "performance" | "battery_saver";
 	/** Show restart notifications when audio/vision capture stalls (default: false for now) */
 	showRestartNotifications?: boolean;
-	/** Offline mode — blocks all external network from pipes, disables PostHog telemetry, keeps Sentry crash reports */
-	offlineMode?: boolean;
 	/** Pause all screen capture when a DRM-protected streaming app (Netflix, Disney+, etc.) or a remote-desktop client (Omnissa/VMware Horizon) is focused — they blank their windows during screen recording */
 	pauseOnDrmContent?: boolean;
 	/** Skip clipboard capture in the UI recorder (events + content). Recommended when piping ~/.screenpipe to a remote LLM since passwords / API keys often pass through the clipboard. */

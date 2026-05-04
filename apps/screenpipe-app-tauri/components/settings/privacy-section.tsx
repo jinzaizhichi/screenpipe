@@ -16,7 +16,6 @@ import {
   AlertCircle,
   RefreshCw,
   AppWindowMac,
-  WifiOff,
   Tv,
   Lock,
   Copy,
@@ -269,15 +268,10 @@ export function PrivacySection() {
         setPendingApiKey(null);
       }
 
-      // Offline mode force-disables PostHog but keeps Sentry for crash reports
-      const analyticsEffective = settings.offlineMode ? false : settings.analyticsEnabled;
-      if (!analyticsEffective) {
+      if (!settings.analyticsEnabled) {
         posthog.capture("telemetry", { enabled: false });
         posthog.opt_out_capturing();
-        // Only close Sentry if analytics disabled manually, NOT for offline mode
-        if (!settings.offlineMode) {
-          Sentry.close();
-        }
+        Sentry.close();
       } else {
         const isDebug = process.env.TAURI_ENV_DEBUG === "true";
         if (!isDebug) {
@@ -333,10 +327,6 @@ export function PrivacySection() {
 
   const handleAnalyticsToggle = (checked: boolean) => {
     handleSettingsChange({ analyticsEnabled: checked }, true);
-  };
-
-  const handleOfflineModeToggle = (checked: boolean) => {
-    handleSettingsChange({ offlineMode: checked }, true);
   };
 
   const handlePushFilterToTeam = async (
@@ -695,44 +685,6 @@ export function PrivacySection() {
           }}
         />
       </div>
-
-      {/* Offline Mode */}
-      <LockedSetting settingKey="offline_mode">
-      <div className="space-y-2">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-          Network
-        </h2>
-        <Card className="border-border bg-card">
-          <CardContent className="px-3 py-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <WifiOff className="h-4 w-4 text-muted-foreground shrink-0" />
-                <div>
-                  <h3 className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                    Offline Mode
-                    <HelpTooltip text="Forces local AI models (Ollama), disables Pi web search, blocks app analytics, and refuses to run pipes whose pipe.md uses non-localhost network calls (curl, fetch, bunx, npm/bun/pip install, playwright install). Localhost / LAN / .local hosts remain accessible. Crash reports (Sentry) and auto-updates still work." />
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Local AI + local network only; pipes calling external URLs are blocked
-                  </p>
-                </div>
-              </div>
-              <ManagedSwitch
-                settingKey="offlineMode"
-                id="offlineMode"
-                checked={Boolean(settings.offlineMode)}
-                onCheckedChange={handleOfflineModeToggle}
-              />
-            </div>
-            {settings.offlineMode && (
-              <div className="mt-2 ml-[26px] text-xs text-muted-foreground space-y-1">
-                <p>Cloud AI providers, Pi web search, and app analytics are disabled. Pipes whose pipe.md fetches from non-localhost URLs (or runs bunx / npm install / playwright install) refuse to run — see the pipe&apos;s run log for the exact line that tripped the gate.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-      </LockedSetting>
 
       {/* Capture Rules */}
       <div className="space-y-2">
@@ -1430,16 +1382,15 @@ export function PrivacySection() {
                     Analytics
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {settings.offlineMode ? "Disabled by offline mode" : "Anonymous usage data"}
+                    Anonymous usage data
                   </p>
                 </div>
               </div>
               <ManagedSwitch
                 settingKey="analyticsEnabled"
                 id="analyticsEnabled"
-                checked={settings.offlineMode ? false : settings.analyticsEnabled}
+                checked={settings.analyticsEnabled}
                 onCheckedChange={handleAnalyticsToggle}
-                disabled={Boolean(settings.offlineMode)}
               />
             </div>
           </CardContent>

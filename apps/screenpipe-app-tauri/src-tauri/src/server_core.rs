@@ -67,9 +67,7 @@ impl ServerCore {
         if !config.analytics_id.is_empty() {
             std::env::set_var("SCREENPIPE_ANALYTICS_ID", &config.analytics_id);
         }
-        let offline_mode = screenpipe_core::offline::is_offline_mode();
-        let analytics_effective = config.analytics_enabled && !offline_mode;
-        analytics::init(analytics_effective);
+        analytics::init(config.analytics_enabled);
 
         if config.use_chinese_mirror {
             std::env::set_var("HF_ENDPOINT", "https://hf-mirror.com");
