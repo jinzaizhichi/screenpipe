@@ -982,7 +982,13 @@ impl SCServer {
                                     .status(403)
                                     .header("Content-Type", "application/json")
                                     .body(axum::body::Body::from(
-                                        r#"{"error":"unauthorized: API access requires authentication. Pass Authorization: Bearer <your-api-key> (find your key in Settings > Privacy)"}"#,
+                                        // CLI-only users (no desktop app) can't open
+                                        // Settings > Privacy — surface the CLI path
+                                        // and env var here so the error itself
+                                        // tells them how to authenticate. Discord
+                                        // jeffutter, 2026-05-04: the previous hint
+                                        // pointed at a UI menu they didn't have.
+                                        r#"{"error":"unauthorized: API access requires authentication. Pass `Authorization: Bearer <your-api-key>`. Get the key with `screenpipe auth token`, or set the `SCREENPIPE_API_KEY` env var before starting screenpipe. (Desktop app users: Settings > Privacy.)"}"#,
                                     ))
                                     .unwrap()
                             }
